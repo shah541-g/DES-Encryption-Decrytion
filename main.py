@@ -29,7 +29,7 @@ class DESApp(tk.Tk):
         tk.Radiobutton(self.option_frame, text="Decryption", font=("Arial", 12, "bold"), width=10, height=4, variable=self.boolean_var, value=False, relief="flat", command=self.update_mode, bg="#27A58C").pack(side="left")
 
        
-        self.upload_button = tk.Button(self, text="Upload PDF", command=self.upload_file, bg="#1B8314", fg="white", width=20, height=2)
+        self.upload_button = tk.Button(self, text="Browse PDF",font=("Times New Roman", 9, "bold"), command=self.upload_file, bg="#1B8314", fg="white", width=20, height=2)
         self.upload_button.pack(pady=10)
 
        
@@ -37,7 +37,7 @@ class DESApp(tk.Tk):
         self.text_area.pack(fill="both", expand=True, padx=10, pady=10)
 
         
-        self.action_button = tk.Button(self, text="Encrypt/Decrypt and Save", bg="#092768", fg="white", command=self.process_text, width=30, height=2)
+        self.action_button = tk.Button(self, text="Encrypt/Decrypt and Save",font=("Times New Roman", 9, "bold"), bg="#092768", fg="white", command=self.process_text, width=30, height=2)
         self.action_button.pack(pady=25, padx=10)
 
     def update_mode(self):

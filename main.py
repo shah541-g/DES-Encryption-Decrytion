@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter.scrolledtext import ScrolledText
-from Encryption import DESEncryption
+from Encryption import DES_EncryptionCypher
 from PDFHandler import PDFHandler
 import os
 
@@ -60,7 +60,7 @@ class DESApp(tk.Tk):
         
         edited_text = self.text_area.get("1.0", tk.END).strip()
         key = "AHMADALI"
-        des = DESEncryption()
+        des = DES_EncryptionCypher()
 
         save_file_path = filedialog.asksaveasfilename(
             defaultextension=".pdf",

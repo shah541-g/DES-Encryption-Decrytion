@@ -1,6 +1,6 @@
 import base64
-class DESEncryption:
-    ip = [
+class DES_EncryptionCypher:
+    initialPermutation = [
         58, 50, 42, 34, 26, 18, 10, 2,
         60, 52, 44, 36, 28, 20, 12, 4,
         62, 54, 46, 38, 30, 22, 14, 6,
@@ -11,7 +11,7 @@ class DESEncryption:
         63, 55, 47, 39, 31, 23, 15, 7
     ]
 
-    ip1 = [
+    inverse_InitialPermutation = [
         40, 8, 48, 16, 56, 24, 64, 32,
         39, 7, 47, 15, 55, 23, 63, 31,
         38, 6, 46, 14, 54, 22, 62, 30,
@@ -22,7 +22,7 @@ class DESEncryption:
         33, 1, 41, 9, 49, 17, 57, 25
     ]
 
-    eBitSelection =  [ 
+    eBit_SelectionTable =  [ 
         32, 1, 2, 3, 4, 5,
         4, 5, 6, 7, 8, 9,
         8, 9, 10, 11, 12, 13,
@@ -33,7 +33,7 @@ class DESEncryption:
         28, 29, 30, 31, 32, 1
     ]
 
-    p = [
+    pTable = [
          16, 7, 20, 21, 29, 12, 28, 17,
          1, 15, 23, 26, 5, 18, 31, 10,
          2, 8, 24, 14, 32, 27, 3, 9,
@@ -137,11 +137,11 @@ class DESEncryption:
 
     def desEncryptBlock(self, plain_block, roundKeys):
         binary_plaintext = self.textToBinaryConversion(plain_block)
-        permuted_text = self.performPermutation(binary_plaintext[:64], self.ip)
+        permuted_text = self.performPermutation(binary_plaintext[:64], self.initialPermutation)
         left, right = self.splitIntoBlocks(permuted_text)
 
         for round in range(16):
-            expanded_right = self.performPermutation(right, self.eBitSelection)
+            expanded_right = self.performPermutation(right, self.eBit_SelectionTable)
             xor_result = self.performXor(expanded_right, roundKeys[round])
 
             substituted = ''.join (
@@ -149,11 +149,12 @@ class DESEncryption:
                        [int(block[1:5], 2)], '04b')
                 for i, block in enumerate([xor_result[i:i+6] for i in range(0, 48, 6)])
             )
-            permuted_substitution = self.performPermutation(substituted, self.p)
+            # //////////////////////////////////////////////////////////////////////////////
+            permuted_substitution = self.performPermutation(substituted, self.pTable)
             new_right = self.performXor(left, permuted_substitution)
             left, right = right, new_right
 
-        final_permutation = self.performPermutation(right + left, self.ip1)
+        final_permutation = self.performPermutation(right + left, self.inverse_InitialPermutation)
         return final_permutation
 
     def desEncrypt(self, plainText, key):
@@ -181,22 +182,23 @@ class DESEncryption:
     def desDecryptBlock(self, encryptedBlock, roundKeys):
         binaryBlock = format(int.from_bytes(
             encryptedBlock, byteorder='big'), '064b')
-        permutedText = self.performPermutation(binaryBlock, self.ip)
+        permutedText = self.performPermutation(binaryBlock, self.initialPermutation)
         left, right = self.splitIntoBlocks(permutedText)
 
         for round in reversed(range(16)):
-            expandedRight = self.performPermutation(right, self.eBitSelection)
+            expandedRight = self.performPermutation(right, self.eBit_SelectionTable)
             xorResult = self.performXor(expandedRight, roundKeys[round])
             substituted = ''.join(
                 format(self.sBoxes[i][int(block[0] + block[-1], 2)]
                     [int(block[1:5], 2)], '04b')
                 for i, block in enumerate([xorResult[i:i + 6] for i in range(0, 48, 6)])
             )
-            permutedSubstitution = self.performPermutation(substituted, self.p)
+            # //////////////////////////////////////////////////////////////////////////
+            permutedSubstitution = self.performPermutation(substituted, self.pTable)
             newRight = self.performXor(left, permutedSubstitution)
             left, right = right, newRight
 
-        finalPermutation = self.performPermutation(right + left, self.ip1)
+        finalPermutation = self.performPermutation(right + left, self.inverse_InitialPermutation)
         return finalPermutation
 
     def desDecrypt(self, encryptedBase64, key):
